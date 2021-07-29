@@ -1,0 +1,477 @@
+<subform xmlns="http://www.xfa.org/schema/xfa-template/3.3/" layout="tb" w="8in" x="0in" y="0in">
+   <subform columnWidths="12.81mm 61.377mm 30mm 30mm 33.891mm 34.96mm" layout="table" name="Table1">
+      <border>
+         <edge/>
+      </border>
+      <subform id="HeaderRow_ID" layout="row" name="HEADER">
+         <assist role="TH"/>
+         <draw h="11.741mm" name="Cell1">
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+               <fill>
+                  <linear>
+                     <color value="51,102,255"/>
+                  </linear>
+               </fill>
+            </border>
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text xmlns:xliff="urn:oasis:names:tc:xliff:document:1.1" xliff:rid="BE7B1825-69B5-4CD6-A712-B1BBB41B9CA2">SN.</text>
+            </value>
+            <font baselineShift="0pt" size="12pt" typeface="Arial" weight="bold"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" marginLeft="0pt" marginRight="0pt" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" vAlign="middle"/>
+         </draw>
+         <draw h="11.741mm" name="Cell2">
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+               <fill>
+                  <linear>
+                     <color value="51,102,255"/>
+                  </linear>
+               </fill>
+            </border>
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text xmlns:xliff="urn:oasis:names:tc:xliff:document:1.1" xliff:rid="7B31FD69-FB48-4014-8D28-1F4B277433F9">Description</text>
+            </value>
+            <font baselineShift="0pt" size="12pt" typeface="Arial" weight="bold"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" marginLeft="0pt" marginRight="0pt" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" vAlign="middle"/>
+         </draw>
+         <draw h="11.741mm" name="Cell3">
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+               <fill>
+                  <linear>
+                     <color value="51,102,255"/>
+                  </linear>
+               </fill>
+            </border>
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text xmlns:xliff="urn:oasis:names:tc:xliff:document:1.1" xliff:rid="74A368AD-EBFD-435C-A96A-067E754CFF81">Unit</text>
+            </value>
+            <font baselineShift="0pt" size="12pt" typeface="Arial" weight="bold"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" marginLeft="0pt" marginRight="0pt" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" vAlign="middle"/>
+         </draw>
+         <draw h="11.741mm" name="Cell4">
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+               <fill>
+                  <linear>
+                     <color value="51,102,255"/>
+                  </linear>
+               </fill>
+            </border>
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text xmlns:xliff="urn:oasis:names:tc:xliff:document:1.1" xliff:rid="EAD1D051-1CE3-4503-9750-4BF81F0C6380">Qty</text>
+            </value>
+            <font baselineShift="0pt" size="12pt" typeface="Arial" weight="bold"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" marginLeft="0pt" marginRight="0pt" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" vAlign="middle"/>
+         </draw>
+         <field access="readOnly" h="9mm" id="floatingField018467" name="WAERS" presence="hidden" w="62mm" x="0mm" y="0mm">
+            <ui>
+               <textEdit>
+                  <border>
+                     <edge stroke="lowered"/>
+                  </border>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial"/>
+            <margin bottomInset="1mm" leftInset="1mm" rightInset="1mm" topInset="1mm"/>
+            <para vAlign="middle"/>
+            <value>
+               <text maxChars="5"/>
+            </value>
+            <bind match="dataRef" ref="$.IT__BODY.DATA[*].WAERS"/>
+            <desc>
+               <text name="Schema Annotation">Currency Key</text>
+            </desc>
+         </field>
+         <draw h="11.741mm" name="Cell5">
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+               <fill>
+                  <linear>
+                     <color value="51,102,255"/>
+                  </linear>
+               </fill>
+            </border>
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <exData xmlns:xliff="urn:oasis:names:tc:xliff:document:1.1" contentType="text/html" xliff:rid="E5A65B6B-C76B-4116-957E-BD0D58A3498F">
+                  <body xmlns="http://www.w3.org/1999/xhtml" xmlns:xfa="http://www.xfa.org/schema/xfa-data/1.0/"><p style="letter-spacing:0in">Unit Rate<span style="xfa-spacerun:yes"> </span><span xfa:embed="#floatingField018467" xfa:embedMode="raw" xfa:embedType="uri"/></p></body>
+               </exData>
+            </value>
+            <font baselineShift="0pt" size="12pt" typeface="Arial" weight="bold"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" marginLeft="0pt" marginRight="0pt" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" vAlign="middle"/>
+         </draw>
+         <field access="readOnly" h="9mm" id="floatingField006334" name="WAERS" presence="hidden" w="62mm" x="0mm" y="0mm">
+            <ui>
+               <textEdit>
+                  <border>
+                     <edge stroke="lowered"/>
+                  </border>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial"/>
+            <margin bottomInset="1mm" leftInset="1mm" rightInset="1mm" topInset="1mm"/>
+            <para vAlign="middle"/>
+            <value>
+               <text maxChars="5"/>
+            </value>
+            <bind match="dataRef" ref="$.IT__BODY.DATA[*].WAERS"/>
+            <caption>
+               <value>
+                  <text xmlns:xliff="urn:oasis:names:tc:xliff:document:1.1" xliff:rid="ECD3FED8-75DC-4597-B69C-FE28D2E13BC9">Crcy</text>
+               </value>
+            </caption>
+            <desc>
+               <text name="Schema Annotation">Currency Key</text>
+            </desc>
+         </field>
+         <draw h="11.741mm" name="Cell6">
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+               <fill>
+                  <linear>
+                     <color value="51,102,255"/>
+                  </linear>
+               </fill>
+            </border>
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <exData xmlns:xliff="urn:oasis:names:tc:xliff:document:1.1" contentType="text/html" xliff:rid="1AA4F6CF-FD46-427F-AFBB-2F1B9F5C488F">
+                  <body xmlns="http://www.w3.org/1999/xhtml" xmlns:xfa="http://www.xfa.org/schema/xfa-data/1.0/"><p style="letter-spacing:0in">Total Rate<span style="xfa-spacerun:yes"> </span><span xfa:embed="#floatingField006334" xfa:embedMode="raw" xfa:embedType="uri"/></p></body>
+               </exData>
+            </value>
+            <font baselineShift="0pt" size="12pt" typeface="Arial" weight="bold"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" marginLeft="0pt" marginRight="0pt" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" vAlign="middle"/>
+         </draw>
+         <border>
+            <edge presence="hidden"/>
+         </border>
+         <bind match="none"/>
+         <?templateDesigner expand 0?></subform>
+      <subform layout="row" name="DATA">
+         <assist role="TR"/>
+         <field h="10mm" name="COUNTER">
+            <ui>
+               <numericEdit>
+                  <border presence="hidden"/>
+               </numericEdit>
+            </ui>
+            <font typeface="Arial"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" vAlign="middle"/>
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <calculate>
+               <script contentType="application/x-javascript"/>
+            </calculate>
+            <bind match="dataRef" ref="$.IT__BODY.DATA[*].COUNT"/>
+            <desc>
+               <text name="Schema Annotation">R/2 table</text>
+            </desc>
+            <validate>
+               <script contentType="application/x-javascript"/>
+            </validate>
+         </field>
+         <field h="10mm" name="Cell2">
+            <ui>
+               <textEdit/>
+            </ui>
+            <font typeface="Arial"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" vAlign="middle"/>
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <bind match="dataRef" ref="$.IT__BODY.DATA[*].TXZ01"/>
+         </field>
+         <field h="10mm" name="Cell3">
+            <ui>
+               <textEdit/>
+            </ui>
+            <font typeface="Arial"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" vAlign="middle"/>
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <bind match="dataRef" ref="$.IT__BODY.DATA[*].MEINS"/>
+         </field>
+         <field h="10mm" name="Cell4">
+            <ui>
+               <textEdit/>
+            </ui>
+            <font typeface="Arial"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" vAlign="middle"/>
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <bind match="dataRef" ref="$.IT__BODY.DATA[*].MENGE"/>
+         </field>
+         <field h="10mm" name="Cell5">
+            <ui>
+               <textEdit/>
+            </ui>
+            <font typeface="Arial"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" vAlign="middle"/>
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <bind match="dataRef" ref="$.IT__BODY.DATA[*].NETPR"/>
+         </field>
+         <field h="10mm" name="Cell6">
+            <ui>
+               <textEdit/>
+            </ui>
+            <font typeface="Arial"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" vAlign="middle"/>
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <bind match="dataRef" ref="$.IT__BODY.DATA[*].NETWR"/>
+         </field>
+         <border>
+            <edge presence="hidden"/>
+         </border>
+         <bind match="none"/>
+         <occur max="-1"/>
+         <?templateDesigner expand 0?></subform>
+      <subform layout="row" name="DISCOUNT">
+         <assist role="TR"/>
+         <draw colSpan="5" h="10mm" name="Cell1" w="150mm">
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text xmlns:xliff="urn:oasis:names:tc:xliff:document:1.1" xliff:rid="8A8077EF-AF15-4FF9-BACE-7F7DB4590432">Discount</text>
+            </value>
+            <font baselineShift="0pt" size="12pt" typeface="Arial" weight="bold"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" marginLeft="0pt" marginRight="0pt" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" vAlign="middle"/>
+         </draw>
+         <field h="10mm" name="Cell6">
+            <ui>
+               <textEdit/>
+            </ui>
+            <font typeface="Arial"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" vAlign="middle"/>
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <bind match="dataRef" ref="$.DISC"/>
+         </field>
+         <border>
+            <edge presence="hidden"/>
+         </border>
+         <bind match="none"/>
+         <?templateDesigner expand 0?></subform>
+      <subform layout="row" name="NET">
+         <assist role="TR"/>
+         <draw colSpan="5" h="10mm" name="Cell1" w="150mm">
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text xmlns:xliff="urn:oasis:names:tc:xliff:document:1.1" xliff:rid="A734280C-D893-4126-96AB-FEFF6B704E51">Net Order Amount</text>
+            </value>
+            <font baselineShift="0pt" size="12pt" typeface="Arial" weight="bold"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" marginLeft="0pt" marginRight="0pt" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" vAlign="middle"/>
+         </draw>
+         <field h="10mm" name="Cell6">
+            <ui>
+               <textEdit/>
+            </ui>
+            <font typeface="Arial"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" vAlign="middle"/>
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <bind match="dataRef" ref="$.NET"/>
+         </field>
+         <border>
+            <edge presence="hidden"/>
+         </border>
+         <bind match="none"/>
+         <?templateDesigner expand 0?></subform>
+      <subform layout="row" name="TRANSPORTATION">
+         <assist role="TR"/>
+         <draw colSpan="5" h="10mm" name="Cell1" w="150mm">
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text xmlns:xliff="urn:oasis:names:tc:xliff:document:1.1" xliff:rid="90C64849-536C-4077-8CF7-9B9EB1C8D2BF">Transportation</text>
+            </value>
+            <font baselineShift="0pt" size="12pt" typeface="Arial" weight="bold"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" marginLeft="0pt" marginRight="0pt" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" vAlign="middle"/>
+         </draw>
+         <field h="10mm" name="Cell6">
+            <ui>
+               <textEdit/>
+            </ui>
+            <font typeface="Arial"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" vAlign="middle"/>
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <bind match="dataRef" ref="$.TRANS"/>
+         </field>
+         <border>
+            <edge presence="hidden"/>
+         </border>
+         <bind match="none"/>
+         <?templateDesigner expand 0?></subform>
+      <subform layout="row" name="VAT">
+         <assist role="TR"/>
+         <draw colSpan="5" h="10mm" name="Cell1" w="150mm">
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text xmlns:xliff="urn:oasis:names:tc:xliff:document:1.1" xliff:rid="E519571C-296B-4899-A72C-7E6D096FE733">VAT</text>
+            </value>
+            <font baselineShift="0pt" size="12pt" typeface="Arial" weight="bold"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" marginLeft="0pt" marginRight="0pt" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" vAlign="middle"/>
+         </draw>
+         <field h="10mm" name="Cell6">
+            <ui>
+               <textEdit/>
+            </ui>
+            <font typeface="Arial"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" vAlign="middle"/>
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <bind match="dataRef" ref="$.VAT"/>
+         </field>
+         <border>
+            <edge presence="hidden"/>
+         </border>
+         <bind match="none"/>
+         <?templateDesigner expand 0?></subform>
+      <subform layout="row" name="TOTAL">
+         <assist role="TR"/>
+         <draw colSpan="5" h="10mm" name="Cell1" w="150mm">
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text xmlns:xliff="urn:oasis:names:tc:xliff:document:1.1" xliff:rid="E73800FD-EA47-4AFA-8A03-7C6D87ABAC74">Total Order Amount</text>
+            </value>
+            <font baselineShift="0pt" size="12pt" typeface="Arial" weight="bold"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" marginLeft="0pt" marginRight="0pt" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" vAlign="middle"/>
+         </draw>
+         <field h="10mm" name="Cell6">
+            <ui>
+               <textEdit/>
+            </ui>
+            <font typeface="Arial"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" vAlign="middle"/>
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <bind match="dataRef" ref="$.TOTAL"/>
+         </field>
+         <border>
+            <edge presence="hidden"/>
+         </border>
+         <bind match="none"/>
+         <?templateDesigner expand 0?></subform>
+      <subform layout="row" name="TEXTAMOUNT">
+         <assist role="TR"/>
+         <field colSpan="-1" h="10mm" name="Cell1" w="203.038mm">
+            <ui>
+               <textEdit/>
+            </ui>
+            <font typeface="Arial"/>
+            <margin bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm" topInset="0.5mm"/>
+            <para hAlign="center" vAlign="middle"/>
+            <border>
+               <edge/>
+               <corner thickness="0.1778mm"/>
+            </border>
+            <bind match="dataRef" ref="$.TEXTAMOUNT"/>
+         </field>
+         <border>
+            <edge presence="hidden"/>
+         </border>
+         <bind match="none"/>
+         <?templateDesigner expand 0?></subform>
+      <bind match="none"/>
+      <?templateDesigner rowpattern first:1, next:1, firstcolor:f0f0f0, nextcolor:ffffff, apply:0?>
+      <?templateDesigner expand 1?></subform>
+   <?templateDesigner expand 1?></subform>

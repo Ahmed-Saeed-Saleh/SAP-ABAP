@@ -1,0 +1,320 @@
+*&---------------------------------------------------------------------*
+*& Report ZSAEED_ALV_MM_OOP
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT ZSAEED_ALV_MM_OOP.
+
+*======================================================================*
+* TYPE DECLARTIONS  *
+*======================================================================*
+
+TABLES: EKKO,
+        EKPO.
+
+TYPE-POOLS: SLIS.
+
+*======================================================================*
+* DATA DEFINIATIONS  *
+*======================================================================*
+
+DATA: IT_DATA_BODY        TYPE ZADOBE_BODY_TABLE,
+      WA_BODY             TYPE ZADOBE_BODY,
+      COUNT               TYPE I,
+      LX_MSG              TYPE REF TO CX_SALV_MSG,
+      O_ALV               TYPE REF TO CL_SALV_TABLE,
+      COLUMNS             TYPE REF TO CL_SALV_COLUMNS_TABLE,
+      COLUMN              TYPE REF TO CL_SALV_COLUMN,
+      DISPLAY             TYPE REF TO CL_SALV_DISPLAY_SETTINGS,
+      LR_SORT             TYPE REF TO CL_SALV_SORTS,
+      LR_SORT_COLUMN      TYPE REF TO CL_SALV_SORT.
+
+"" FOR HEADER AND FOOTER
+DATA: LR_HEADER           TYPE REF TO CL_SALV_FORM_ELEMENT,
+      LR_GRID_LAYOUT      TYPE REF TO CL_SALV_FORM_LAYOUT_GRID,
+      LR_LABEL            TYPE REF TO CL_SALV_FORM_LABEL,
+      LR_TEXT             TYPE REF TO CL_SALV_FORM_TEXT,
+      LR_FOOTER           TYPE REF TO CL_SALV_FORM_HEADER_INFO.
+
+*======================================================================*
+* SELECTION SCREEN  *
+*======================================================================*
+
+SELECTION-SCREEN BEGIN OF BLOCK SRC WITH FRAME.
+
+  SELECT-OPTIONS: EBELN_ID FOR EKKO-EBELN MATCHCODE OBJECT ZSH_EBELN.
+
+SELECTION-SCREEN END OF BLOCK SRC.
+
+*======================================================================*
+* LOGIC PART *
+*======================================================================*
+
+START-OF-SELECTION.
+
+  PERFORM FETCH_BODY_DATA.
+  PERFORM BUILD_ALV.
+
+END-OF-SELECTION.
+
+
+*======================================================================*
+* SUB ROUTINES  *
+*======================================================================*
+
+FORM FETCH_BODY_DATA.
+  SELECT  EKPO~TXZ01
+          EKPO~MENGE
+          EKPO~MEINS
+          EKPO~NETPR
+          EKPO~NETWR
+          EKPO~EBELN
+    INTO CORRESPONDING FIELDS OF TABLE IT_DATA_BODY
+    FROM EKPO
+    WHERE EKPO~EBELN IN EBELN_ID
+    AND EKPO~LOEKZ NE 'L'.
+
+
+  COUNT = 0.
+
+  LOOP AT IT_DATA_BODY INTO WA_BODY.
+    COUNT = COUNT + 1 .
+  ENDLOOP.
+ENDFORM.
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+FORM BUILD_ALV.
+
+  CL_SALV_TABLE=>FACTORY(
+    IMPORTING
+      R_SALV_TABLE = O_ALV
+    CHANGING
+      T_TABLE      = IT_DATA_BODY ).
+
+  COLUMNS = O_ALV->GET_COLUMNS( ).
+
+  PERFORM SET_TEXT_ALV.
+  PERFORM SET_AGGREGATIONS.
+  PERFORM BUILD_SUBTOTAL.
+  PERFORM SET_TOOLBAR.
+  PERFORM BUILD_HEADER.
+  PERFORM BUILD_FOOTER.
+
+* DISPLAY ALV
+  O_ALV->DISPLAY( ).
+
+ENDFORM.
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+*FORM OPTIMIZE_COLUMN_WIDTH.
+*
+*  COLUMNS->SET_OPTIMIZE( 'X' ).
+*
+*ENDFORM.
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+FORM SET_TEXT_ALV.
+
+  DATA NOT_FOUND TYPE REF TO CX_SALV_NOT_FOUND.
+
+  TRY.
+    COLUMN = COLUMNS->GET_COLUMN( 'EBELN' ).
+    COLUMN->SET_SHORT_TEXT( 'ID' ).
+    COLUMN->SET_MEDIUM_TEXT( 'PO.ID' ).
+    COLUMN->SET_LONG_TEXT( 'PURCHASE ORDER ID' ).
+  CATCH CX_SALV_NOT_FOUND INTO NOT_FOUND.
+    " error handling
+  ENDTRY.
+
+  CLEAR COLUMN.
+  TRY.
+    COLUMN = COLUMNS->GET_COLUMN( 'TXZ01' ).
+    COLUMN->SET_MEDIUM_TEXT( 'DESCRIPTION' ).
+    COLUMN->SET_LONG_TEXT( 'DESCRIPTION' ).
+    COLUMN->SET_OUTPUT_LENGTH( 20 ).
+  CATCH CX_SALV_NOT_FOUND INTO NOT_FOUND.
+    " error handling
+  ENDTRY.
+
+  CLEAR COLUMN.
+  TRY.
+    COLUMN = COLUMNS->GET_COLUMN( 'MEINS' ).
+    COLUMN->SET_MEDIUM_TEXT( 'UNIT' ).
+    COLUMN->SET_LONG_TEXT( 'UNIT' ).
+    COLUMN->SET_OUTPUT_LENGTH( 20 ).
+  CATCH CX_SALV_NOT_FOUND INTO NOT_FOUND.
+    " error handling
+  ENDTRY.
+
+  CLEAR COLUMN.
+  TRY.
+    COLUMN = COLUMNS->GET_COLUMN( 'MENGE' ).
+    COLUMN->SET_MEDIUM_TEXT( 'QTY' ).
+    COLUMN->SET_LONG_TEXT( 'QTY' ).
+    COLUMN->SET_OUTPUT_LENGTH( 20 ).
+  CATCH CX_SALV_NOT_FOUND INTO NOT_FOUND.
+    " error handling
+  ENDTRY.
+
+  CLEAR COLUMN.
+  TRY.
+    COLUMN = COLUMNS->GET_COLUMN( 'NETPR' ).
+    COLUMN->SET_MEDIUM_TEXT( 'UNIT RATE' ).
+    COLUMN->SET_LONG_TEXT( 'UNIT RATE' ).
+    COLUMN->SET_OUTPUT_LENGTH( 20 ).
+  CATCH CX_SALV_NOT_FOUND INTO NOT_FOUND.
+    " error handling
+  ENDTRY.
+
+  CLEAR COLUMN.
+  TRY.
+    COLUMN = COLUMNS->GET_COLUMN( 'NETWR' ).
+    COLUMN->SET_MEDIUM_TEXT( 'TOTAL RATE' ).
+    COLUMN->SET_LONG_TEXT( 'TOTAL RATE' ).
+    COLUMN->SET_OUTPUT_LENGTH( 20 ).
+  CATCH CX_SALV_NOT_FOUND INTO NOT_FOUND.
+    " error handling
+  ENDTRY.
+
+  PERFORM HIDE_COLUMNS.
+
+ENDFORM.
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+FORM SET_TOOLBAR.
+
+  DATA FUNCTIONS TYPE REF TO CL_SALV_FUNCTIONS_LIST.
+
+  FUNCTIONS = O_ALV->GET_FUNCTIONS( ).
+  FUNCTIONS->SET_ALL( ABAP_TRUE ).
+
+  DISPLAY = O_ALV->GET_DISPLAY_SETTINGS( ).
+  DISPLAY->SET_LIST_HEADER( 'HEADER ABOVE TOOLBAR' ).
+
+
+
+ENDFORM.                    " SET_TOOLBAR
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+FORM SET_AGGREGATIONS.
+
+  DATA AGGREGATIONS TYPE REF TO CL_SALV_AGGREGATIONS.
+
+  AGGREGATIONS = O_ALV->GET_AGGREGATIONS( ).
+
+  TRY.
+      AGGREGATIONS->ADD_AGGREGATION(
+        COLUMNNAME  = 'NETWR'
+        AGGREGATION = IF_SALV_C_AGGREGATION=>TOTAL
+      ).
+    CATCH CX_SALV_DATA_ERROR.
+    CATCH CX_SALV_NOT_FOUND.
+    CATCH CX_SALV_EXISTING.
+  ENDTRY.
+
+ENDFORM.
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+FORM BUILD_HEADER.
+
+  CREATE OBJECT LR_GRID_LAYOUT.
+
+  LR_GRID_LAYOUT->CREATE_HEADER_INFORMATION( "create header for gird
+    ROW    = 1
+    COLUMN = 1
+    TEXT    = 'EMPLOYEE TABLE DATA'
+    TOOLTIP = 'EMPLOYEE TABLE DATA' ).
+  LR_GRID_LAYOUT->ADD_ROW( ). "add row
+
+  LR_LABEL = LR_GRID_LAYOUT->CREATE_LABEL(
+    ROW     = 2
+    COLUMN  = 1
+    TEXT    = 'Number of records found: '
+    TOOLTIP = 'Number of records found for your query' ).
+
+  LR_TEXT = LR_GRID_LAYOUT->CREATE_TEXT(
+    ROW     = 2
+    COLUMN  = 2
+    TEXT    = COUNT
+    TOOLTIP = COUNT ).
+  LR_LABEL->SET_LABEL_FOR( LR_TEXT ).
+
+  LR_LABEL = LR_GRID_LAYOUT->CREATE_LABEL(
+    ROW    = 3
+    COLUMN = 1
+    TEXT    = 'Date : '
+    TOOLTIP = 'Date' ).
+
+  LR_TEXT = LR_GRID_LAYOUT->CREATE_TEXT(
+    ROW    = 3
+    COLUMN = 2
+    TEXT    = SY-DATUM
+    TOOLTIP = SY-DATUM ).
+
+  LR_HEADER = LR_GRID_LAYOUT.
+  CALL METHOD O_ALV->SET_TOP_OF_LIST  "set top of list
+    EXPORTING
+      VALUE = LR_HEADER.
+
+ENDFORM.
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+FORM BUILD_FOOTER.
+
+  CREATE OBJECT LR_FOOTER
+    EXPORTING
+      TEXT    = 'End of List as Footer'
+      TOOLTIP = 'End of List as Footer'.
+
+  CALL METHOD O_ALV->SET_END_OF_LIST
+    EXPORTING
+      VALUE = LR_FOOTER.
+
+ENDFORM.
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+FORM BUILD_SUBTOTAL.
+
+  CALL METHOD O_ALV->GET_SORTS "get sorts
+    RECEIVING
+      VALUE = LR_SORT.
+
+  CALL METHOD LR_SORT->ADD_SORT "add column sort
+    EXPORTING
+      COLUMNNAME = 'EBELN' "sort column always keyfield
+    RECEIVING
+      VALUE      = LR_SORT_COLUMN.
+
+  CALL METHOD LR_SORT_COLUMN->SET_SUBTOTAL "add subtotal
+    EXPORTING
+      VALUE = IF_SALV_C_BOOL_SAP=>TRUE.
+
+ENDFORM.
+
+FORM HIDE_COLUMNS.
+
+  DATA NOT_FOUND TYPE REF TO CX_SALV_NOT_FOUND.
+
+  TRY.
+      COLUMN = COLUMNS->GET_COLUMN( 'WAERS' ).
+      COLUMN->SET_VISIBLE( IF_SALV_C_BOOL_SAP=>FALSE ).
+    CATCH CX_SALV_NOT_FOUND INTO NOT_FOUND.
+      " error handling
+  ENDTRY.
+
+  TRY.
+      COLUMN = COLUMNS->GET_COLUMN( 'COUNT' ).
+      COLUMN->SET_VISIBLE( IF_SALV_C_BOOL_SAP=>FALSE ).
+    CATCH CX_SALV_NOT_FOUND INTO NOT_FOUND.
+      " error handling
+  ENDTRY.
+
+ENDFORM.                    " HIDE_CLIENT_COLUMN

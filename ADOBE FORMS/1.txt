@@ -1,0 +1,171 @@
+*&---------------------------------------------------------------------*
+*& Report ZSAEEDADOBETEST
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT ZSAEEDADOBETEST.
+* tcode ZSAEEDADOBE1
+TABLES: ZEMP,
+        ZBRANCHE,
+        ZDEPARTMENT,
+        ZGRADES.
+*======================================================================*
+* DATA DEFINIATIONS  *
+*======================================================================*
+DATA: IT TYPE TABLE OF ZTABLE_FINAL,
+      WA TYPE ZTABLE_FINAL,
+      it_emp TYPE TABLE OF zemp,
+      wa_emp TYPE zemp,
+      it_dept TYPE TABLE OF ZDEPARTMENT,
+      wa_dept TYPE ZDEPARTMENT,
+      it_GRADE TYPE TABLE OF ZGRADES,
+      wa_GRADE TYPE ZGRADES,
+      it_BRANCHE TYPE TABLE OF ZBRANCHE,
+      wa_BRANCHE TYPE ZBRANCHE.
+
+data: w_time like sy-uzeit,
+      w_second TYPE i,
+      W_DATE LIKE SY-DATUM.
+
+W_SECOND = 2 * 3600 .
+w_time = sy-uzeit - W_SECOND.
+
+W_DATE = SY-DATUM.
+
+**&&~~ Data Objects
+DATA: gv_fm_name TYPE rs38l_fnam, " FM Name
+      gs_fp_docparams TYPE sfpdocparams,
+      gs_fp_outputparams TYPE sfpoutputparams,
+      gv_name TYPE tdobname,
+      gv_logo TYPE xstring ,
+      gv_bmp TYPE xstring.
+
+CONSTANTS : gv_form_name TYPE fpname VALUE 'ZFORM_SAEEDFIRST',
+            gc_btype TYPE tdbtype VALUE 'BCOL',
+            gc_id TYPE tdidgr VALUE 'BMAP',
+            gc_object TYPE tdobjectgr VALUE 'GRAPHICS'.
+
+*======================================================================*
+* SELECTION SCREEN  *
+*======================================================================*
+SELECTION-SCREEN BEGIN OF BLOCK SRC WITH FRAME.
+
+  SELECT-OPTIONS: V1 FOR ZEMP-EMP_ID MATCHCODE OBJECT ZSH_EMP_ID .
+  SELECTION-SCREEN SKIP 1.
+
+  SELECT-OPTIONS V2 FOR ZDEPARTMENT-DEPT_ID MATCHCODE OBJECT ZSH_DEPT_ID .
+  SELECTION-SCREEN SKIP 1.
+
+  SELECT-OPTIONS V3 FOR ZBRANCHE-BRANCH_ID MATCHCODE OBJECT ZSH_BRH_ID .
+  SELECTION-SCREEN SKIP 1.
+
+  SELECT-OPTIONS V4 FOR ZGRADES-GRADE_ID MATCHCODE OBJECT ZSH_GRD_ID .
+  SELECTION-SCREEN SKIP 1.
+
+SELECTION-SCREEN END OF BLOCK SRC.
+
+START-OF-SELECTION.
+
+PERFORM READ_DATA.
+SORT IT BY EMP_ID.
+
+*======================================================================*
+* Form Processing: Call Form - Open  *
+*======================================================================*
+
+CALL FUNCTION 'FP_JOB_OPEN'
+CHANGING
+  ie_outputparams = gs_fp_outputparams
+EXCEPTIONS
+  cancel = 1
+  usage_error = 2
+  system_error = 3
+  internal_error = 4
+  OTHERS = 5.
+
+*======================================================================*
+* Get the Function module name based on Form Name  *
+*======================================================================*
+
+CALL FUNCTION 'FP_FUNCTION_MODULE_NAME'
+EXPORTING
+  i_name = gv_form_name
+IMPORTING
+  e_funcname = gv_fm_name.
+
+
+*======================================================================*
+* img function *
+*======================================================================*
+gv_name = 'logo'.
+
+*  Get the image/logo graphic information
+CALL METHOD cl_ssf_xsf_utilities=>get_bds_graphic_as_bmp
+EXPORTING
+  p_object = gc_object " GRAPHICS
+  p_name = gv_name " Name of the Logo
+  p_id = gc_id " BMAP
+  p_btype = gc_btype " BCOL for color, 'BMON' for Black & White
+  RECEIVING
+  p_bmp = gv_bmp
+EXCEPTIONS
+  not_found = 1
+  internal_error = 2
+  OTHERS = 3.
+
+gv_logo = gv_bmp.
+*======================================================================*
+* Take the FM name by execuing the form - by using Pattern-
+* call that FM and replace the FM Name by gv_fm_name
+* Call the Generated FM  *
+*======================================================================*
+
+CALL FUNCTION gv_fm_name "'/1BCDWB/SM00000176'
+EXPORTING
+  /1bcdwb/docparams = gs_fp_docparams
+  it_emp = IT
+  TIME = W_TIME
+  DATE = W_DATE
+  iv_logo = gv_logo
+EXCEPTIONS
+  usage_error = 1
+  system_error = 2
+  internal_error = 3
+  OTHERS = 4.
+
+*======================================================================*
+* Close the spool job  *
+*======================================================================*
+
+CALL FUNCTION 'FP_JOB_CLOSE'
+EXCEPTIONS
+  usage_error = 1
+  system_error = 2
+  internal_error = 3
+  OTHERS = 4.
+
+*======================================================================*
+* SUB ROUTINES  *
+*======================================================================*
+
+FORM READ_DATA.
+    SELECT  ZEMP~EMP_ID
+            ZEMP~EMP_NAME
+            ZEMP~EMP_SALARY
+            ZDEPARTMENT~DEPT_NAME
+            ZBRANCHE~BRANCH_NAME
+            ZGRADES~GRADE_DESCRIPTION
+        INTO  CORRESPONDING FIELDS OF TABLE IT
+        FROM ZEMP
+        INNER JOIN ZDEPARTMENT
+        ON ZDEPARTMENT~DEPT_ID EQ ZEMP~EMP_DEP_ID
+        INNER JOIN ZGRADES
+        ON ZGRADES~GRADE_ID EQ ZEMP~EMP_GRAD_ID
+        INNER JOIN ZBRANCHE
+        ON ZBRANCHE~BRANCH_ID EQ ZEMP~EMP_BRANCH_ID
+        WHERE
+        EMP_ID IN V1
+        AND DEPT_ID IN V2
+        AND BRANCH_ID IN V3
+        AND GRADE_ID IN V4.
+ENDFORM.

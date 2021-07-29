@@ -1,0 +1,113 @@
+*&---------------------------------------------------------------------*
+*& Report ZALV_TASK_1
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT ZALV_TASK_1.
+
+* tcode zsaeedalv1
+
+*======================================================================*
+* DATA DEFINIATIONS  *
+*======================================================================*
+
+DATA: IT_TEXT       TYPE TRUXS_T_TEXT_DATA,
+      IT_EMP        TYPE TABLE OF ZEMP,
+      IT_DEPT       TYPE TABLE OF ZDEPARTMENT,
+      IT_BRANCHE    TYPE TABLE OF ZBRANCHE,
+      IT_GRADE      TYPE TABLE OF ZGRADES.
+
+*======================================================================*
+* SELECTION SCREEN  *
+*======================================================================*
+
+SELECTION-SCREEN BEGIN OF BLOCK SRC WITH FRAME.
+
+  PARAMETERS : P_RAD1 RADIOBUTTON GROUP RB1.
+  PARAMETERS : P_RAD2 RADIOBUTTON GROUP RB1.
+  PARAMETERS : P_RAD3 RADIOBUTTON GROUP RB1.
+  PARAMETERS : P_RAD4 RADIOBUTTON GROUP RB1.
+
+  SELECTION-SCREEN SKIP 2.
+
+  PARAMETERS: P_FILE TYPE RLGRAP-FILENAME OBLIGATORY.
+
+SELECTION-SCREEN END OF BLOCK SRC.
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR P_FILE.
+
+  PERFORM READ_EXCEL_SHEET.
+
+*======================================================================*
+* LOGIC PART *
+*======================================================================*
+
+START-OF-SELECTION.
+
+  PERFORM UPLOADING_DATA_TO_DATABASE.
+
+END-OF-SELECTION.
+
+*======================================================================*
+* SUB ROUTINES  *
+*======================================================================*
+
+FORM READ_EXCEL_SHEET.
+
+  CALL FUNCTION 'F4_FILENAME'
+    EXPORTING
+      FIELD_NAME          = 'P_FILE'
+    IMPORTING
+      FILE_NAME           = P_FILE.
+
+ENDFORM.
+
+FORM UPLOADING_DATA_TO_DATABASE.
+
+
+  IF P_RAD1 EQ 'X'.             " EMP TABLE
+
+    PERFORM CONVERT CHANGING IT_EMP .
+    PERFORM SAVE USING 'ZEMP' CHANGING IT_EMP .
+
+  ELSEIF P_RAD2 EQ 'X'.         " DEPARTMENT TABLE
+
+    PERFORM CONVERT CHANGING IT_DEPT.
+    PERFORM SAVE USING 'ZDEPARTMENT' CHANGING IT_DEPT .
+
+
+  ELSEIF P_RAD3 EQ 'X'.         " BRANCHES TABLE
+
+    PERFORM CONVERT CHANGING IT_BRANCHE.
+    PERFORM SAVE USING 'ZBRANCHE' CHANGING IT_BRANCHE .
+
+  ELSEIF P_RAD4 EQ 'X'.         " GRADE TABLE
+
+    PERFORM CONVERT CHANGING IT_GRADE.
+    PERFORM SAVE USING 'ZGRADES' CHANGING IT_GRADE .
+
+  ENDIF.
+
+ MESSAGE 'EXCEL SHEET UPLOADED SUCCESSFULLY' TYPE 'S'.
+
+ENDFORM.
+
+FORM CONVERT CHANGING IT TYPE STANDARD TABLE .
+
+  CALL FUNCTION 'TEXT_CONVERT_XLS_TO_SAP'
+    EXPORTING
+      I_TAB_RAW_DATA             = IT_TEXT
+      I_FILENAME                 = P_FILE
+    TABLES
+      I_TAB_CONVERTED_DATA       = IT
+    EXCEPTIONS
+     CONVERSION_FAILED          = 1
+     OTHERS                     = 2.
+
+ENDFORM.
+
+FORM SAVE     USING TABLE TYPE STRING
+              CHANGING IT TYPE STANDARD TABLE .
+
+  MODIFY (TABLE) FROM TABLE IT.
+ENDFORM .

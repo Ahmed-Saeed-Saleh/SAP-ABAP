@@ -1,0 +1,80 @@
+*&---------------------------------------------------------------------*
+*& Report ZSAEED_FM_TASK
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT ZSAEED_FM_TASK.
+
+
+*======================================================================*
+* TYPE DECLARTIONS  *
+*======================================================================*
+TABLES: ZEMP.
+
+*======================================================================*
+* DATA DEFINIATIONS  *
+*======================================================================*
+DATA: IT_EMP        TYPE TABLE OF ZEMP,
+      WA_EMP        TYPE ZEMP.
+
+*======================================================================*
+* SELECTION SCREEN  *
+*======================================================================*
+
+SELECTION-SCREEN BEGIN OF BLOCK SRC WITH FRAME.
+
+  SELECTION-SCREEN ULINE /1(50).
+
+  PARAMETERS: R1                RADIOBUTTON GROUP RAD1  MODIF ID BL2,
+              EMP_ID            LIKE ZEMP-EMP_ID        MATCHCODE OBJECT ZSH_EMP_ID ,
+              R2                RADIOBUTTON GROUP RAD1  MODIF ID BL2,
+              ID                LIKE ZEMP-EMP_ID        MATCHCODE OBJECT ZSH_EMP_ID ,
+              EMP_NAME          LIKE ZEMP-EMP_NAME      ,
+              DEPT              LIKE ZEMP-EMP_DEP_ID    MATCHCODE OBJECT ZSH_DEPT_ID ,
+              BRANCHE           LIKE ZEMP-EMP_BRANCH_ID MATCHCODE OBJECT ZSH_BRH_ID ,
+              SALARY            LIKE ZEMP-EMP_SALARY    ,
+              GRADE             LIKE ZEMP-EMP_GRAD_ID   MATCHCODE OBJECT ZSH_GRD_ID.
+
+  SELECTION-SCREEN ULINE /1(50).
+
+SELECTION-SCREEN END OF BLOCK SRC.
+
+*======================================================================*
+* LOGIC PART *
+*======================================================================*
+
+START-OF-SELECTION.
+
+  IF R1 = 'X'.
+    PERFORM DISPLAY_EMP_DATA.
+  ELSE.
+    PERFORM MODIFY_DATA.
+  ENDIF.
+
+END-OF-SELECTION.
+
+*======================================================================*
+* SUB ROUTINES  *
+*======================================================================*
+
+FORM DISPLAY_EMP_DATA.
+
+  CALL FUNCTION 'ZEMP_DISPLAY'
+    EXPORTING
+      EMP_ID        = EMP_ID.
+
+ENDFORM.
+
+FORM MODIFY_DATA.
+
+  WA_EMP-EMP_ID         = ID.
+  WA_EMP-EMP_SALARY     = SALARY.
+  WA_EMP-EMP_DEP_ID     = DEPT.
+  WA_EMP-EMP_NAME       = EMP_NAME.
+  WA_EMP-EMP_GRAD_ID    = GRADE.
+  WA_EMP-EMP_BRANCH_ID  = BRANCHE.
+  CALL FUNCTION 'ZEMP_INSERT'
+    EXPORTING
+      WA            = WA_EMP.
+
+ENDFORM.

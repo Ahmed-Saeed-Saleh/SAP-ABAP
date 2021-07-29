@@ -1,0 +1,281 @@
+*&---------------------------------------------------------------------*
+*& Report ZSAEED_ALV_2_OOP
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT ZSAEED_ALV_2_OOP.
+
+*======================================================================*
+* TYPE DECLARTIONS  *
+*======================================================================*
+
+TYPE-POOLS: SLIS,
+            SHLP.
+
+TABLES: ZEMP,
+        ZBRANCHE,
+        ZDEPARTMENT,
+        ZGRADES.
+
+*======================================================================*
+* DATA DEFINIATIONS  *
+*======================================================================*
+
+DATA: IT                  TYPE TABLE OF ZTABLE_FINAL,
+      WA                  TYPE ZTABLE_FINAL,
+      COUNT               TYPE I,
+      LX_MSG              TYPE REF TO CX_SALV_MSG,
+      O_ALV               TYPE REF TO CL_SALV_TABLE,
+      COLUMNS             TYPE REF TO CL_SALV_COLUMNS_TABLE,
+      COLUMN              TYPE REF TO CL_SALV_COLUMN,
+      DISPLAY             TYPE REF TO CL_SALV_DISPLAY_SETTINGS.
+
+DATA FLAG TYPE I.
+"" FOR HEADER AND FOOTER
+DATA: LR_HEADER           TYPE REF TO CL_SALV_FORM_ELEMENT,
+      LR_GRID_LAYOUT      TYPE REF TO CL_SALV_FORM_LAYOUT_GRID,
+      LR_LABEL            TYPE REF TO CL_SALV_FORM_LABEL,
+      LR_TEXT             TYPE REF TO CL_SALV_FORM_TEXT,
+      LR_FOOTER           TYPE REF TO CL_SALV_FORM_HEADER_INFO,
+      LO_EVENT            TYPE REF TO CL_SALV_EVENTS_TABLE.
+
+
+*======================================================================*
+* CLASS DEFINITIONS  *
+*======================================================================*
+
+CLASS CL_CLICK DEFINITION.
+  PUBLIC SECTION.
+    METHODS : BUTTON
+                 FOR EVENT IF_SALV_EVENTS_FUNCTIONS~ADDED_FUNCTION
+                 OF CL_SALV_EVENTS_TABLE
+                IMPORTING E_SALV_FUNCTION.
+
+
+ENDCLASS.
+DATA :  LO_CLICK  TYPE REF TO CL_CLICK,
+        LT_ROWS   TYPE SALV_T_ROW,
+        LS_ROW    TYPE I.
+
+*======================================================================*
+* SELECTION SCREEN  *
+*======================================================================*
+
+
+SELECTION-SCREEN BEGIN OF BLOCK SRC WITH FRAME.
+
+  SELECT-OPTIONS: V1 FOR ZEMP-EMP_ID MATCHCODE OBJECT ZSH_EMP_ID .
+  SELECTION-SCREEN SKIP 1.
+
+  SELECT-OPTIONS V2 FOR ZDEPARTMENT-DEPT_ID MATCHCODE OBJECT ZSH_DEPT_ID.
+  SELECTION-SCREEN SKIP 1.
+
+  SELECT-OPTIONS V3 FOR ZBRANCHE-BRANCH_ID MATCHCODE OBJECT ZSH_BRH_ID .
+  SELECTION-SCREEN SKIP 1.
+
+  SELECT-OPTIONS V4 FOR ZGRADES-GRADE_ID MATCHCODE OBJECT ZSH_GRD_ID .
+  SELECTION-SCREEN SKIP 1.
+
+SELECTION-SCREEN END OF BLOCK SRC.
+
+*======================================================================*
+* LOGIC PART *
+*======================================================================*
+
+START-OF-SELECTION.
+
+  PERFORM FETCH_BODY_DATA.
+  PERFORM BUILD_ALV.
+
+END-OF-SELECTION.
+
+
+*======================================================================*
+* SUB ROUTINES  *
+*======================================================================*
+
+FORM FETCH_BODY_DATA.
+
+  SELECT  ZEMP~EMP_ID
+          ZEMP~EMP_NAME
+          ZEMP~EMP_SALARY
+          ZDEPARTMENT~DEPT_NAME
+          ZBRANCHE~BRANCH_NAME
+          ZGRADES~GRADE_DESCRIPTION
+      INTO  CORRESPONDING FIELDS OF TABLE IT
+      FROM ZEMP
+      INNER JOIN ZDEPARTMENT
+      ON ZDEPARTMENT~DEPT_ID EQ ZEMP~EMP_DEP_ID
+      INNER JOIN ZGRADES
+      ON ZGRADES~GRADE_ID EQ ZEMP~EMP_GRAD_ID
+      INNER JOIN ZBRANCHE
+      ON ZBRANCHE~BRANCH_ID EQ ZEMP~EMP_BRANCH_ID
+      WHERE
+      EMP_ID IN V1
+      AND DEPT_ID IN V2
+      AND BRANCH_ID IN V3
+      AND GRADE_ID IN V4.
+
+  COUNT = 0.
+
+  LOOP AT IT INTO WA.
+    COUNT = COUNT + 1 .
+  ENDLOOP.
+ENDFORM.
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+FORM BUILD_ALV.
+
+  CL_SALV_TABLE=>FACTORY(
+    IMPORTING
+      R_SALV_TABLE = O_ALV
+    CHANGING
+      T_TABLE      = IT ).
+
+  COLUMNS   = O_ALV->GET_COLUMNS( ).
+  LO_EVENT  = O_ALV->GET_EVENT( ).
+
+  PERFORM SET_TEXT_ALV.
+  PERFORM SET_AGGREGATIONS.
+  PERFORM SET_TOOLBAR.
+
+  CREATE OBJECT LO_CLICK.
+  SET HANDLER LO_CLICK->BUTTON FOR LO_EVENT.
+* DISPLAY ALV
+  O_ALV->DISPLAY( ).
+
+ENDFORM.
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+*FORM OPTIMIZE_COLUMN_WIDTH.
+*
+*  COLUMNS->SET_OPTIMIZE( 'X' ).
+*
+*ENDFORM.
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+FORM SET_TEXT_ALV.
+
+  DATA NOT_FOUND TYPE REF TO CX_SALV_NOT_FOUND.
+
+  TRY.
+    COLUMN = COLUMNS->GET_COLUMN( 'EMP_ID' ).
+    COLUMN->SET_MEDIUM_TEXT( 'ID' ).
+    COLUMN->SET_LONG_TEXT( 'EMPLOYEE ID' ).
+    COLUMN->SET_OPTIMIZED( ).
+  CATCH CX_SALV_NOT_FOUND INTO NOT_FOUND.
+    " error handling
+  ENDTRY.
+
+  CLEAR COLUMN.
+  TRY.
+    COLUMN = COLUMNS->GET_COLUMN( 'EMP_SALARY' ).
+    COLUMN->SET_MEDIUM_TEXT( 'EMP. SALARY' ).
+    COLUMN->SET_LONG_TEXT( 'EMPLOYEE SALARY' ).
+    COLUMN->SET_OUTPUT_LENGTH( 20 ).
+  CATCH CX_SALV_NOT_FOUND INTO NOT_FOUND.
+    " error handling
+  ENDTRY.
+
+  CLEAR COLUMN.
+  TRY.
+    COLUMN = COLUMNS->GET_COLUMN( 'EMP_NAME' ).
+    COLUMN->SET_MEDIUM_TEXT( 'EMP. NAME' ).
+    COLUMN->SET_LONG_TEXT( 'EMPLOYEE NAME' ).
+    COLUMN->SET_OUTPUT_LENGTH( 20 ).
+  CATCH CX_SALV_NOT_FOUND INTO NOT_FOUND.
+    " error handling
+  ENDTRY.
+
+  CLEAR COLUMN.
+  TRY.
+    COLUMN = COLUMNS->GET_COLUMN( 'DEPT_NAME' ).
+    COLUMN->SET_MEDIUM_TEXT( 'DEPT. NAME' ).
+    COLUMN->SET_LONG_TEXT( 'DEPARTMENT NAME' ).
+    COLUMN->SET_OUTPUT_LENGTH( 20 ).
+  CATCH CX_SALV_NOT_FOUND INTO NOT_FOUND.
+    " error handling
+  ENDTRY.
+
+  CLEAR COLUMN.
+  TRY.
+    COLUMN = COLUMNS->GET_COLUMN( 'GRADE_DESCRIPTION' ).
+    COLUMN->SET_MEDIUM_TEXT( 'GRADE DESC.' ).
+    COLUMN->SET_LONG_TEXT( 'GRADE DESCRIPTION' ).
+    COLUMN->SET_OUTPUT_LENGTH( 20 ).
+  CATCH CX_SALV_NOT_FOUND INTO NOT_FOUND.
+    " error handling
+  ENDTRY.
+
+  CLEAR COLUMN.
+  TRY.
+    COLUMN = COLUMNS->GET_COLUMN( 'BRANCH_NAME' ).
+    COLUMN->SET_MEDIUM_TEXT( 'BRANCH NAME' ).
+    COLUMN->SET_LONG_TEXT( 'BRANCH NAME' ).
+    COLUMN->SET_OUTPUT_LENGTH( 20 ).
+  CATCH CX_SALV_NOT_FOUND INTO NOT_FOUND.
+    " error handling
+  ENDTRY.
+
+ENDFORM.                    " SET_DEPARTURE_COUNTRY_COLUMN
+
+FORM SET_TOOLBAR.
+
+  PERFORM SET_PF_STATUS.
+
+  O_ALV->SET_SCREEN_STATUS(
+       PFSTATUS      =  'ZSTANDARD'
+       REPORT       = SY-REPID
+       SET_FUNCTIONS = O_ALV->C_FUNCTIONS_ALL ).
+
+ENDFORM.                    " SET_TOOLBAR
+
+FORM SET_AGGREGATIONS.
+
+  DATA AGGREGATIONS TYPE REF TO CL_SALV_AGGREGATIONS.
+
+  AGGREGATIONS = O_ALV->GET_AGGREGATIONS( ).
+
+  TRY.
+      AGGREGATIONS->ADD_AGGREGATION(
+        COLUMNNAME  = 'EMP_SALARY'
+        AGGREGATION = IF_SALV_C_AGGREGATION=>TOTAL
+      ).
+    CATCH CX_SALV_DATA_ERROR.
+    CATCH CX_SALV_NOT_FOUND.
+    CATCH CX_SALV_EXISTING.
+  ENDTRY.
+
+ENDFORM.
+
+FORM SET_PF_STATUS .
+
+  SET PF-STATUS 'ZSTANDARD'. " T-CODE SE41 COPYING STANDARD FROM SAPLKKBL
+
+ENDFORM.
+
+*======================================================================*
+* CLASS IMPLEMENTATION  *
+*======================================================================*
+CLASS CL_CLICK IMPLEMENTATION.
+
+  METHOD BUTTON.
+
+    IF SY-UCOMM EQ '&DEL'.
+
+      LT_ROWS = O_ALV->GET_SELECTIONS( )->GET_SELECTED_ROWS( ).
+      LOOP AT LT_ROWS INTO LS_ROW.
+        READ TABLE IT INTO WA INDEX LS_ROW.
+        DELETE  FROM ZEMP WHERE EMP_ID = WA-EMP_ID.
+        PERFORM FETCH_BODY_DATA.
+      ENDLOOP.
+      CALL METHOD O_ALV->REFRESH .
+
+    ENDIF.
+
+  ENDMETHOD.
+
+ENDCLASS.

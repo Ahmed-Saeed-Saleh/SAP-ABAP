@@ -1,0 +1,215 @@
+*&---------------------------------------------------------------------*
+*& Report ZSAEED_ADOBE_TASK
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT ZSAEED_ADOBE_TASK.
+
+
+
+*======================================================================*
+* TYPE DECLARTIONS  *
+*======================================================================*
+
+TYPES: BEGIN OF DISCOUNT_TABLE,
+         KWERT TYPE PRCD_ELEMENTS-KWERT,
+         KSCHL TYPE PRCD_ELEMENTS-KSCHL,
+       END OF DISCOUNT_TABLE.
+
+
+*======================================================================*
+* DATA DEFINIATIONS  *
+*======================================================================*
+DATA: WA_HEADER          TYPE ZADOBE_FORM_HEADER,
+      IT_DATA_BODY       TYPE ZADOBE_BODY_TABLE,
+      WA_BODY            TYPE ZADOBE_BODY,
+      GV_FM_NAME         TYPE RS38L_FNAM,
+      GS_FP_DOCPARAMS    TYPE SFPDOCPARAMS,
+      GS_FP_OUTPUTPARAMS TYPE SFPOUTPUTPARAMS,
+      COUNT              TYPE NUMC_5,
+      IT_KWERT           TYPE TABLE OF DISCOUNT_TABLE,
+      WA_KWERT           TYPE DISCOUNT_TABLE,
+      WA_DISC            TYPE ZCAL_TABLE,
+      IN_WORD            LIKE SPELL,
+      TEXTAMOUNT         TYPE IN_WORDS,
+      POTEXT             TYPE STRING.
+
+
+DATA: HEAD_NAME TYPE THEAD-TDNAME,
+      IT_LINES  TYPE ZTDLINE,
+      WA_LINES  LIKE TLINE.
+
+CONSTANTS : GV_FORM_NAME TYPE FPNAME VALUE 'ZSAEED_ADOBE_TASK_FORM'.
+
+*======================================================================*
+* SELECTION SCREEN  *
+*======================================================================*
+
+SELECTION-SCREEN BEGIN OF BLOCK SRC WITH FRAME.
+
+  PARAMETERS: EBELN_ID LIKE EKKO-EBELN OBLIGATORY MATCHCODE OBJECT ZSH_EBELN.
+
+SELECTION-SCREEN END OF BLOCK SRC.
+
+*======================================================================*
+* LOGIC PART *
+*======================================================================*
+
+START-OF-SELECTION.
+
+  PERFORM INTIALIZE_ADOBE_FORM.
+  PERFORM FETCH_DATA_HEADER.
+  PERFORM FETCH_BODY_DATA.
+  PERFORM DISPLAY_ADOBE_FORM.
+
+END-OF-SELECTION.
+
+*======================================================================*
+* SUB ROUTINES  *
+*======================================================================*
+
+FORM INTIALIZE_ADOBE_FORM.
+  CALL FUNCTION 'FP_FUNCTION_MODULE_NAME'
+    EXPORTING
+      I_NAME     = GV_FORM_NAME
+    IMPORTING
+      E_FUNCNAME = GV_FM_NAME.
+
+  GS_FP_OUTPUTPARAMS-PREVIEW ='X'.
+  GS_FP_OUTPUTPARAMS-DEST = 'LP01'.
+  GS_FP_OUTPUTPARAMS-REQNEW ='X'.
+  GS_FP_OUTPUTPARAMS-REQIMM ='X'.
+  GS_FP_OUTPUTPARAMS-NODIALOG ='X'.
+  GS_FP_OUTPUTPARAMS-DEVICE = 'PRINTER'.
+
+  CALL FUNCTION 'FP_JOB_OPEN'
+    CHANGING
+      IE_OUTPUTPARAMS = GS_FP_OUTPUTPARAMS
+    EXCEPTIONS
+      CANCEL          = 1
+      USAGE_ERROR     = 2
+      SYSTEM_ERROR    = 3
+      INTERNAL_ERROR  = 4
+      OTHERS          = 5.
+ENDFORM.
+
+FORM FETCH_DATA_HEADER.
+  SELECT SINGLE  EKKO~AEDAT,
+          EKKO~EBELN,
+          EKKO~KNUMV,
+          LFA1~MCOD1,
+          LFA1~TELF1,
+          LFA1~NAME4,
+          LFA1~MCOD3,
+          LFA1~STRAS,
+          T161T~BATXT,
+          ADR6~SMTP_ADDR
+          INTO CORRESPONDING FIELDS OF  @WA_HEADER
+          FROM EKKO
+          LEFT  OUTER JOIN LFA1   ON  EKKO~LIFNR EQ LFA1~LIFNR
+          LEFT  OUTER JOIN T161T ON  EKKO~BSTYP EQ T161T~BSTYP
+                          AND EKKO~BSART EQ T161T~BSART
+          LEFT  OUTER JOIN ADR6 ON  LFA1~ADRNR EQ ADR6~ADDRNUMBER
+          WHERE EKKO~EBELN = @EBELN_ID AND T161T~SPRAS EQ @SY-LANGU.
+
+  HEAD_NAME = EBELN_ID .
+
+  CALL FUNCTION 'READ_TEXT'
+    EXPORTING
+      ID        = 'F01'
+      LANGUAGE  = SY-LANGU
+      NAME      = HEAD_NAME
+      OBJECT    = 'EKKO'
+    TABLES
+      LINES     = IT_LINES
+    EXCEPTIONS
+      NOT_FOUND = 1.
+
+  LOOP AT IT_LINES INTO WA_LINES.
+    CONCATENATE POTEXT  WA_LINES-TDLINE INTO POTEXT SEPARATED BY ' '.
+  ENDLOOP.
+
+
+ENDFORM.
+
+FORM FETCH_BODY_DATA.
+  SELECT  EKPO~TXZ01
+          EKPO~MENGE
+          EKPO~MEINS
+          EKPO~NETPR
+          EKPO~NETWR
+          EKKO~WAERS
+    INTO CORRESPONDING FIELDS OF TABLE IT_DATA_BODY
+    FROM EKKO
+    INNER JOIN EKPO
+    ON EKKO~EBELN = EKPO~EBELN
+    WHERE EKKO~EBELN = EBELN_ID
+    AND EKPO~LOEKZ NE 'L'.
+
+  COUNT = 0.
+  LOOP AT IT_DATA_BODY INTO WA_BODY.
+    COUNT = COUNT + 1 .
+    WA_BODY-COUNT = COUNT.
+    WA_DISC-NET = WA_DISC-NET + WA_BODY-NETWR.
+    MODIFY IT_DATA_BODY FROM WA_BODY.
+  ENDLOOP.
+
+  SELECT  KWERT
+          KSCHL
+          INTO CORRESPONDING FIELDS OF TABLE IT_KWERT
+          FROM PRCD_ELEMENTS
+          WHERE PRCD_ELEMENTS~KNUMV EQ WA_HEADER-KNUMV AND
+          ( ( ( KSCHL = 'HB01' OR KSCHL = 'RA00'OR KSCHL = 'RA01' ) AND KPOSN NE '0' )  OR
+          ( ( KSCHL = 'ZAFR'OR KSCHL = 'ZLFR' OR KSCHL = 'ZOFR' OR KSCHL = 'ZTSP') AND KHERK NE 'C' )  OR
+          ( ( KSCHL = 'NAVS' ) AND KHERK NE 'A' ) ).
+
+
+  LOOP AT IT_KWERT INTO WA_KWERT.
+
+    IF WA_KWERT-KSCHL = 'HB01' OR WA_KWERT-KSCHL = 'RA00' OR WA_KWERT-KSCHL = 'RA01' .
+      WA_DISC-DISC = WA_DISC-DISC + WA_KWERT-KWERT.
+    ELSEIF WA_KWERT-KSCHL = 'ZAFR' OR WA_KWERT-KSCHL = 'ZLFR' OR WA_KWERT-KSCHL = 'ZOFR' OR WA_KWERT-KSCHL = 'ZTSP'  .
+      WA_DISC-TRANS = WA_DISC-TRANS + WA_KWERT-KWERT.
+    ELSEIF  WA_KWERT-KSCHL = 'NAVS'.
+      WA_DISC-VAT = WA_DISC-VAT + WA_KWERT-KWERT .
+    ENDIF.
+
+  ENDLOOP.
+
+  WA_DISC-NET = WA_DISC-NET + WA_DISC-DISC.
+  WA_DISC-TOTAL = WA_DISC-VAT + WA_DISC-TRANS + WA_DISC-NET.
+  READ TABLE IT_DATA_BODY INTO WA_BODY INDEX 1.
+
+  CALL FUNCTION 'SPELL_AMOUNT'
+    EXPORTING
+      AMOUNT   = WA_DISC-TOTAL
+      CURRENCY = WA_BODY-WAERS
+    IMPORTING
+      IN_WORDS = IN_WORD.
+
+  TEXTAMOUNT = IN_WORD-WORD.
+ENDFORM.
+
+FORM DISPLAY_ADOBE_FORM.
+
+  CALL FUNCTION GV_FM_NAME
+    EXPORTING
+      /1BCDWB/DOCPARAMS = GS_FP_DOCPARAMS
+      TEXTAMOUNT        = TEXTAMOUNT
+      WA_HEADER         = WA_HEADER
+      IT_BODY           = IT_DATA_BODY
+      WA_DISC           = WA_DISC
+      POTEXT            = POTEXT
+    EXCEPTIONS
+      USAGE_ERROR       = 1
+      SYSTEM_ERROR      = 2
+      INTERNAL_ERROR    = 3
+      OTHERS            = 4.
+
+  CALL FUNCTION 'FP_JOB_CLOSE'
+    EXCEPTIONS
+      USAGE_ERROR    = 1
+      SYSTEM_ERROR   = 2
+      INTERNAL_ERROR = 3
+      OTHERS         = 4.
+ENDFORM.
